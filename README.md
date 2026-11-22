@@ -3,10 +3,24 @@
 An offline single-player server, Windows launcher, client helper library, and asset/protocol code
 generators for a 3.8 game client.
 
-> **Notice:** You must supply your own legally owned 3.8 game client and its extracted data files.
+> **Notice:** You must supply your own legally owned 3.8 game client.
 > This repository contains **no** game assets, protocol definitions, compiled tables, keys, or
-> other game-derived files: everything the server needs is made from your own client. This project is an independent work and is not affiliated with, endorsed by,
+> other game-derived files (apart from the screenshots below): everything the server needs is
+> made from your own client. This project is an independent work and is not affiliated with, endorsed by,
 > or connected to the game's developer or publisher.
+
+## Screenshots
+
+The 3.8 client on a tidelab server: the open world and story, the first fights, and the Tower of
+Adversity. They only show the game running; nothing in the code uses them.
+
+![Open world and story](docs/screenshots/world.png)
+![Opening and first fights](docs/screenshots/combat.png)
+![Tower of Adversity](docs/screenshots/tower.png)
+
+The client build the patch fits (shown on the start screen):
+
+![Client version 3.8.0 9244589](docs/screenshots/version.png)
 
 ## Layout
 
