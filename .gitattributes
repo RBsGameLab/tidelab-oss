@@ -1,0 +1,16 @@
+* text=auto
+*.cs text eol=crlf
+*.csproj text eol=crlf
+*.props text eol=crlf
+*.targets text eol=crlf
+*.slnx text eol=crlf
+# cmd.exe misreads labels and goto in batch files with LF line ends.
+*.cmd text eol=crlf
+*.md text eol=lf
+*.py text eol=lf
+*.yml text eol=lf
+*.sh text eol=lf
+*.proto text eol=lf
+*.tsv text eol=lf
+*.go text eol=lf
+server/protocol/*.pb.go linguist-generated=true

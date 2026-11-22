@@ -1,0 +1,15 @@
+bin/
+obj/
+out/
+.vs/
+*.user
+__pycache__/
+TestResults/
+client/target/
+tidelab.local.txt
+# Generated locally from your own 3.8 client assets via generate.cmd
+server/protocol/proto/
+server/protocol/schema.tsv
+server/protocol/*.pb.go
+server/protocol/msgid.go
+server/internal/data/tables_gen.go

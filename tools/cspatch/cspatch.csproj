@@ -1,0 +1,11 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <!-- R-55, R-107: in-place IL patches for the client's C# script assemblies (Aki.*.dll), and
+       rbauto copied into Aki.Game.dll. Moved from the lab's tools/cspatch in R-144h.
+       Usage: build-cspak.cmd at this repository's root. -->
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+  </PropertyGroup>
+  <ItemGroup>
+    <PackageReference Include="dnlib" />
+  </ItemGroup>
+</Project>

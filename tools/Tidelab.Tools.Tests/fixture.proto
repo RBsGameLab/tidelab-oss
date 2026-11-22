@@ -1,0 +1,68 @@
+// Every shape the client's protocol uses, for testing tools/Tidelab.ProtoGen's reader on
+// code protoc generated. The expected schema table is in ProtoGenTests.
+syntax = "proto3";
+
+package tidelab.fixture;
+
+option csharp_namespace = "Tidelab.Tests.Fixture";
+
+enum Color {
+  Color_Red = 0;
+  Color_Green = 1;
+  Color_Blue = 5;
+}
+
+message Leaf {
+  int32 value = 1;
+}
+
+message Everything {
+  int32 a32 = 1;
+  int64 a64 = 2;
+  uint32 u32 = 3;
+  uint64 u64 = 4;
+  sint32 s32 = 5;
+  sint64 s64 = 6;
+  fixed32 f32 = 7;
+  fixed64 f64 = 8;
+  sfixed32 sf32 = 9;
+  sfixed64 sf64 = 10;
+  float fl = 11;
+  double db = 12;
+  bool flag = 13;
+  string text = 14;
+  bytes blob = 15;
+  Color color = 16;
+  Leaf leaf = 17;
+  optional int32 maybe = 18;
+  optional Color maybeColor = 19;
+  repeated int32 packedInts = 20;
+  repeated sint32 packedSInts = 21;
+  repeated int64 looseInts = 22 [packed = false];
+  repeated string texts = 23;
+  repeated Leaf leaves = 24;
+  repeated Color colors = 25;
+  map<int32, int32> counts = 26;
+  map<string, Leaf> leafByName = 27;
+  map<int64, Color> colorById = 28;
+  oneof choice {
+    Leaf pickedLeaf = 30;
+    sint32 pickedNumber = 31;
+    string pickedText = 32;
+  }
+  Inner inner = 300;
+  Inner.Mood mood = 301;
+
+  message Inner {
+    fixed32 tick = 1;
+
+    enum Mood {
+      Mood_Calm = 0;
+      Mood_Angry = 2;
+    }
+  }
+}
+
+message Ping {
+  int32 seq = 1;
+}

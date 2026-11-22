@@ -1,0 +1,9 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <!-- Reads the client's Aki.Protocol.dll (metadata and IL, never loaded or run) and writes
+       the .proto files Tidelab.Protocol compiles, plus the schema table the tests check. -->
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+  </PropertyGroup>
+
+</Project>

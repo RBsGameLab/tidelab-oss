@@ -1,0 +1,29 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <!-- R-55: auto dodge and the auto combat modes for the client's C# build, and R-95's PerfSight
+       tap. Compiled against the game's own script assemblies (the 3.8 ones, 11-byte prefix
+       removed); cspatch copies the RB.RBAuto type into Aki.Game.dll, so this dll itself is never
+       shipped. Moved from the lab's tools/rbauto in R-144h; 3.8 only (the lab built 3.7 too). -->
+  <PropertyGroup>
+    <!-- The game's scripts run on .NET 9. -->
+    <TargetFramework>net9.0</TargetFramework>
+    <ImplicitUsings>disable</ImplicitUsings>
+    <Optimize>true</Optimize>
+    <!-- R-171: build_cspak.py passes the lab's; this default is the lab beside the checkout. -->
+    <GameRefs Condition="'$(GameRefs)' == ''">$(MSBuildThisFileDirectory)..\..\..\tidelab-data\backups\csref38</GameRefs>
+    <DefineConstants>$(DefineConstants);RB_V38</DefineConstants>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="$(GameRefs)\Aki.Game.dll" Private="false" />
+    <Reference Include="$(GameRefs)\Aki.Core.dll" Private="false" />
+    <Reference Include="$(GameRefs)\Aki.Common.dll" Private="false" />
+    <Reference Include="$(GameRefs)\Aki.Generated.dll" Private="false" />
+    <!-- R-75: EAttributeType (BaseAttributeComponent.GetCurrentValue) lives here. -->
+    <Reference Include="$(GameRefs)\Aki.Protocol.dll" Private="false" />
+    <Reference Include="$(GameRefs)\Aki.TdInterface.dll" Private="false" />
+    <Reference Include="$(GameRefs)\UnrealEngine.dll" Private="false" />
+    <Reference Include="$(GameRefs)\Sharphereal.Core.dll" Private="false" />
+    <Reference Include="$(GameRefs)\Aki.Launcher.dll" Private="false" />
+    <!-- R-173d: RBKeys reads the UniTask of the launcher's own HTTP request. -->
+    <Reference Include="$(GameRefs)\UniTask.dll" Private="false" />
+  </ItemGroup>
+</Project>

@@ -1,0 +1,334 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>tidelab 内容面板</title>
+<style>
+:root {
+  --bg: #f6f7f9; --card: #fff; --ink: #1d2330; --muted: #6b7385; --line: #e2e5eb;
+  --accent: #2f6fdf; --ok: #1f8a4c; --warn: #b26a00; --off: #9aa1ad; --chip: #eef2fb;
+}
+@media (prefers-color-scheme: dark) {
+  :root { --bg: #14161b; --card: #1c1f26; --ink: #e6e8ee; --muted: #9098a8; --line: #2c313b;
+    --accent: #6d9bff; --ok: #4cc287; --warn: #e0a23c; --off: #6b7180; --chip: #242a38; }
+}
+* { box-sizing: border-box; }
+body { margin: 0; background: var(--bg); color: var(--ink); font: 14px/1.5 system-ui, "Microsoft YaHei", sans-serif; }
+header { padding: 20px 24px 8px; display: flex; align-items: baseline; gap: 16px; flex-wrap: wrap; }
+h1 { font-size: 20px; margin: 0; }
+nav { display: flex; gap: 4px; }
+nav a { color: var(--muted); text-decoration: none; padding: 3px 12px; border-radius: 99px; }
+nav a.on { background: var(--accent); color: #fff; }
+.now { color: var(--muted); }
+main { padding: 8px 24px 40px; max-width: 1200px; }
+.hint { color: var(--muted); margin: 0 0 14px; }
+.card { background: var(--card); border: 1px solid var(--line); border-radius: 10px; padding: 14px 16px; margin-bottom: 10px; }
+.row { display: grid; grid-template-columns: 210px 1fr; gap: 14px; align-items: start; }
+.title { font-weight: 600; }
+.sub { color: var(--muted); font-size: 12px; }
+.state { display: inline-block; font-size: 12px; padding: 1px 8px; border-radius: 99px; background: var(--chip); margin-top: 4px; }
+.state.open { color: var(--ok); } .state.closed { color: var(--off); } .state.wait { color: var(--warn); }
+.mod { color: var(--accent); font-size: 12px; margin-left: 6px; }
+.form { display: flex; flex-wrap: wrap; gap: 10px 16px; align-items: center; }
+label { display: inline-flex; align-items: center; gap: 6px; }
+select, input[type=datetime-local], input[type=number], input[type=search] { font: inherit; color: var(--ink); background: var(--bg); border: 1px solid var(--line); border-radius: 6px; padding: 4px 6px; max-width: 100%; }
+.card select.ed { min-width: 260px; }
+input[type=number] { width: 90px; }
+button { font: inherit; border: 1px solid var(--line); background: var(--bg); color: var(--ink); border-radius: 6px; padding: 4px 12px; cursor: pointer; }
+button.primary { background: var(--accent); border-color: var(--accent); color: #fff; }
+button:disabled { opacity: .45; cursor: default; }
+.times { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
+.msg { font-size: 12px; min-height: 18px; }
+.msg.err { color: #d33; } .msg.ok { color: var(--ok); }
+details { margin-top: 18px; }
+summary { cursor: pointer; color: var(--muted); }
+table { border-collapse: collapse; width: 100%; }
+td, th { text-align: left; padding: 5px 8px; border-bottom: 1px solid var(--line); vertical-align: middle; }
+th { color: var(--muted); font-weight: 500; white-space: nowrap; }
+tr.off td { color: var(--off); }
+.tbl { overflow-x: auto; }
+.tools { display: flex; gap: 12px; align-items: center; flex-wrap: wrap; margin-bottom: 10px; }
+h2 { font-size: 15px; margin: 18px 0 8px; }
+.log { font-family: ui-monospace, Consolas, monospace; font-size: 12px; white-space: pre-wrap; color: var(--muted); }
+[hidden] { display: none !important; }
+@media (max-width: 720px) { .row { grid-template-columns: 1fr; } header, main { padding-left: 16px; padding-right: 16px; } .card select.ed { min-width: 0; width: 100%; } }
+</style>
+</head>
+<body>
+<header>
+  <h1>内容面板</h1>
+  <nav><a href="#act">活动</a><a href="#shop">商城</a><a href="#gacha">卡池</a><a href="#tower">深塔</a></nav>
+  <span class="now" id="now"></span>
+</header>
+<main>
+<section id="pg-act">
+  <p class="hint">时间都是 UTC+8。改完后，游戏客户端每 10 分钟会重新拉一次活动列表，最多 10 分钟内生效；重新登录可以立即生效。没改过的类型按服务端的自动规则运行（每种类型开最新一期，21 天一轮；双倍奖励 7 天一轮）。</p>
+  <div id="slots"></div>
+  <details><summary id="otherSum">服务端不支持的活动类型</summary><div class="tbl"><table id="others"></table></div></details>
+</section>
+<section id="pg-shop" hidden>
+  <p class="hint">在游戏里切换一次商城分页、传送或者重新登录后生效。没改过的商品照 R-159 的设定；价格和限购填回原值就等于恢复默认。限购 0 是不限购。改刷新周期后，本期已买的次数从新周期重新算。</p>
+  <div class="tools"><input type="search" id="shopFind" placeholder="搜商品名或编号"><label><input type="checkbox" id="shopMod"> 只看改过的</label><span class="sub" id="shopCount"></span></div>
+  <div id="shopBox"></div>
+</section>
+<section id="pg-gacha" hidden>
+  <p class="hint">常驻角色池和常驻武器池一直开着。限定池默认关闭；在这里挑一个往期卡池打开，重新打开唤取页就生效。限定角色池用浮金波纹，限定武器池用铸潮波纹；保底和官服一样，同类卡池之间共用。</p>
+  <div id="gachaBox"></div>
+</section>
+<section id="pg-tower" hidden>
+  <p class="hint">赛季只换深境区（稳定区、实验区、超载区只有一套）。换怪按"某层第几波的某种怪"整组换，新怪站在原来的位置，等级和深塔加成照这一层；已经拿到的星数保留。换怪在下次进入那一层时生效；换赛季要传送一次或重新登录才生效。</p>
+  <div id="towerBox"></div>
+</section>
+<details open><summary>修改记录</summary><div class="log" id="log"></div></details>
+</main>
+<script>
+const LABELS = { "2": "签到", "20": "定时奖励", "15": "转盘", "27": "刮刮乐", "26": "梦境联结", "14": "Boss Rush",
+  "34": "领主挑战", "7.2": "双倍奖励（副本类型 1、2）", "7.3": "双倍奖励（副本类型 6）" };
+const H8 = 8 * 3600;
+const fmt = s => s ? new Date((s + H8) * 1000).toISOString().slice(0, 16).replace("T", " ") : "";
+const toInput = s => s ? new Date((s + H8) * 1000).toISOString().slice(0, 16) : "";
+const fromInput = v => v ? Math.floor(Date.parse(v + ":00Z") / 1000) - H8 : 0;
+const esc = s => String(s).replace(/[&<>"]/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+const $ = id => document.getElementById(id);
+
+function show(msg, text, err) { msg.textContent = text; msg.className = "msg " + (err ? "err" : "ok"); }
+function setLog(changes) { $("log").textContent = changes && changes.length ? changes.join("\n") : "还没有修改"; }
+
+async function post(url, body, msg, reload) {
+  try {
+    const r = await fetch(url, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(body) });
+    const d = await r.json();
+    if (!r.ok) { show(msg, d.error || "保存失败", true); return false; }
+    await reload();
+    return true;
+  } catch (e) { show(msg, "连不上服务端：" + e, true); return false; }
+}
+
+// ----- activities -----
+
+const nameOf = (slot, id) => (slot.editions.find(e => e.id === id) || {}).name || "";
+
+async function loadActs() {
+  const d = await (await fetch("/api/activities", { cache: "no-store" })).json();
+  $("now").textContent = "服务器时间 " + fmt(d.now);
+  const box = $("slots");
+  box.innerHTML = "";
+  const others = [];
+  for (const s of d.slots) { if (s.supported) box.appendChild(actCard(s, d.now)); else others.push(s); }
+  $("otherSum").textContent = `服务端不支持的活动类型（${others.length} 种，只能看，想打开需要另开需求补上处理）`;
+  $("others").innerHTML = "<tr><th>类型</th><th>期数</th><th>最新一期</th></tr>" +
+    others.map(s => `<tr><td>${s.type}</td><td>${s.editions.length}</td><td>${s.editions[0].id} ${esc(s.editions[0].name)}</td></tr>`).join("");
+  setLog(d.changes);
+}
+
+function actState(s, now) {
+  if (!s.edition) return ["closed", "没有可开的期"];
+  if (s.override && s.override.off) return ["closed", "已关闭"];
+  if (s.open) return ["open", s.begin ? `开放中，${fmt(s.end)} 结束` : "开放中（常驻）"];
+  if (s.explicit && now < s.begin) return ["wait", `未开始，${fmt(s.begin)} 开始`];
+  return ["closed", "已结束"];
+}
+
+function actCard(s, now) {
+  const el = document.createElement("div");
+  el.className = "card";
+  const [cls, text] = actState(s, now);
+  const o = s.override || {};
+  const opts = [`<option value="0">自动（最新：${s.auto} ${esc(nameOf(s, s.auto))}）</option>`]
+    .concat(s.editions.map(e => `<option value="${e.id}" ${o.edition === e.id ? "selected" : ""}>${e.id} ${esc(e.name)}</option>`));
+  const b = s.explicit ? s.begin : s.autoBegin, e = s.explicit ? s.end : s.autoEnd;
+  el.innerHTML = `
+  <div class="row">
+    <div>
+      <div class="title">${esc(LABELS[s.key] || "类型 " + s.key)}${s.overridden ? '<span class="mod">已修改</span>' : ""}</div>
+      <div class="sub">类型 ${esc(s.key)} · 当前 ${s.edition ? s.edition + " " + esc(nameOf(s, s.edition)) : "无"}</div>
+      <span class="state ${cls}">${esc(text)}</span>
+    </div>
+    <div>
+      <div class="form">
+        <label><input type="checkbox" class="on" ${o.off ? "" : "checked"} ${s.edition ? "" : "disabled"}> 开启</label>
+        <select class="ed" ${s.editions.length ? "" : "disabled"}>${opts.join("")}</select>
+        <label><input type="checkbox" class="win" ${s.explicit ? "checked" : ""}> 自定义时间</label>
+        <span class="times"><input type="datetime-local" class="b" value="${toInput(b)}"> 至 <input type="datetime-local" class="e" value="${toInput(e)}"></span>
+        <button class="primary save">保存</button>
+        <button class="reset" ${s.overridden ? "" : "disabled"}>恢复默认</button>
+      </div>
+      <div class="msg"></div>
+    </div>
+  </div>`;
+  const q = c => el.querySelector(c), msg = q(".msg");
+  const sync = () => { const on = q(".win").checked; q(".b").disabled = q(".e").disabled = !on; };
+  q(".win").onchange = sync; sync();
+  q(".save").onclick = async () => {
+    const body = { off: !q(".on").checked, edition: +q(".ed").value, begin: 0, end: 0 };
+    if (q(".win").checked) {
+      body.begin = fromInput(q(".b").value); body.end = fromInput(q(".e").value);
+      if (!body.begin || !body.end) { show(msg, "请填写开始和结束时间", true); return; }
+      if (body.begin >= body.end) { show(msg, "开始时间要早于结束时间", true); return; }
+    }
+    await post(`/api/activities/${encodeURIComponent(s.key)}`, body, msg, loadActs);
+  };
+  q(".reset").onclick = () => post(`/api/activities/${encodeURIComponent(s.key)}/reset`, {}, msg, loadActs);
+  return el;
+}
+
+// ----- pay shop -----
+
+let shop = null;
+
+async function loadShop() {
+  shop = await (await fetch("/api/shop", { cache: "no-store" })).json();
+  setLog(shop.changes);
+  renderShop();
+}
+
+function renderShop() {
+  const find = $("shopFind").value.trim(), onlyMod = $("shopMod").checked;
+  const groups = new Map();
+  let shown = 0;
+  for (const g of shop.goods) {
+    if (onlyMod && !g.overridden) continue;
+    if (find && !(g.name.includes(find) || String(g.id).includes(find) || String(g.item).includes(find))) continue;
+    const k = `${g.shopName} · ${g.tabName || "分页 " + g.tab}`;
+    if (!groups.has(k)) groups.set(k, []);
+    groups.get(k).push(g);
+    shown++;
+  }
+  $("shopCount").textContent = `${shown} / ${shop.goods.length} 件`;
+  const box = $("shopBox");
+  box.innerHTML = "";
+  for (const [k, goods] of groups) {
+    const h = document.createElement("h2"); h.textContent = `${k}（${goods.length}）`; box.appendChild(h);
+    const wrap = document.createElement("div"); wrap.className = "card tbl";
+    const t = document.createElement("table");
+    t.innerHTML = "<tr><th>上架</th><th>商品</th><th>价格</th><th>限购</th><th>刷新</th><th></th></tr>";
+    for (const g of goods) t.appendChild(goodRow(g));
+    wrap.appendChild(t); box.appendChild(wrap);
+  }
+}
+
+function goodRow(g) {
+  const tr = document.createElement("tr");
+  if (g.off) tr.className = "off";
+  const upd = shop.updateNames.map((n, i) => `<option value="${i}" ${g.now.update === i ? "selected" : ""}>${n}${g.auto.update === i ? "（默认）" : ""}</option>`).join("");
+  tr.innerHTML = `
+    <td><input type="checkbox" class="on" ${g.off ? "" : "checked"}></td>
+    <td>${esc(g.name || g.item)}${g.overridden ? '<span class="mod">已修改</span>' : ""}<div class="sub">商品 ${g.id} · 物品 ${g.item}</div></td>
+    <td><input type="number" class="price" min="1" value="${g.now.price}"> <span class="sub">${esc(g.moneyName)}（默认 ${g.auto.price}）</span></td>
+    <td><input type="number" class="limit" min="0" value="${g.now.limit}"> <span class="sub">默认 ${g.auto.limit || "不限"}</span></td>
+    <td><select class="upd">${upd}</select></td>
+    <td><button class="primary save">保存</button> <button class="reset" ${g.overridden ? "" : "disabled"}>恢复默认</button><div class="msg"></div></td>`;
+  const q = c => tr.querySelector(c), msg = q(".msg");
+  q(".save").onclick = () => {
+    const body = { off: !q(".on").checked, price: +q(".price").value, limit: +q(".limit").value, update: +q(".upd").value };
+    if (!(body.price >= 1) || !(body.limit >= 0)) { show(msg, "价格至少 1，限购至少 0", true); return; }
+    post(`/api/shop/${g.id}`, body, msg, loadShop);
+  };
+  q(".reset").onclick = () => post(`/api/shop/${g.id}/reset`, {}, msg, loadShop);
+  return tr;
+}
+
+$("shopFind").oninput = () => shop && renderShop();
+$("shopMod").onchange = () => shop && renderShop();
+
+// ----- gacha -----
+
+async function loadGacha() {
+  const d = await (await fetch("/api/gacha", { cache: "no-store" })).json();
+  setLog(d.changes);
+  const box = $("gachaBox");
+  box.innerHTML = "";
+  for (const s of d.slots) {
+    const el = document.createElement("div");
+    el.className = "card";
+    const label = s.slot === "role" ? "限定角色池" : "限定武器池";
+    const cur = s.banners.find(b => b.id === s.open);
+    const opts = s.banners.map(b => `<option value="${b.id}" ${b.id === s.open ? "selected" : ""}>${b.id} ${esc(b.name)}</option>`).join("");
+    el.innerHTML = `
+    <div class="row">
+      <div>
+        <div class="title">${label}</div>
+        <div class="sub">往期 ${s.banners.length} 个</div>
+        <span class="state ${cur ? "open" : "closed"}">${cur ? "开放中：" + esc(cur.name) : "关闭"}</span>
+      </div>
+      <div>
+        <div class="form">
+          <select class="ed">${opts}</select>
+          <button class="primary save">${cur ? "换成这个" : "打开"}</button>
+          <button class="reset" ${cur ? "" : "disabled"}>关闭</button>
+        </div>
+        <div class="msg"></div>
+      </div>
+    </div>`;
+    const q = c => el.querySelector(c), msg = q(".msg");
+    q(".save").onclick = () => post(`/api/gacha/${s.slot}`, { id: +q(".ed").value }, msg, loadGacha);
+    q(".reset").onclick = () => post(`/api/gacha/${s.slot}/reset`, {}, msg, loadGacha);
+    box.appendChild(el);
+  }
+}
+
+// ----- tower -----
+
+async function loadTower() {
+  const d = await (await fetch("/api/tower", { cache: "no-store" })).json();
+  setLog(d.changes);
+  const box = $("towerBox");
+  const openIds = new Set([...box.querySelectorAll("details[open]")].map(x => x.dataset.id));
+  box.innerHTML = "";
+  const sc = document.createElement("div");
+  sc.className = "card";
+  const opts = d.seasons.map(s => `<option value="${s.id}" ${s.id === d.season ? "selected" : ""}>第 ${s.id} 期（${s.floors} 层）${s.id === d.newest ? " · 最新" : ""}</option>`).join("");
+  sc.innerHTML = `
+  <div class="row">
+    <div><div class="title">深境区赛季${d.picked ? '<span class="mod">已修改</span>' : ""}</div>
+      <span class="state open">当前第 ${d.season} 期</span></div>
+    <div><div class="form"><select class="ed">${opts}</select><button class="primary save">换成这期</button>
+      <button class="reset" ${d.picked ? "" : "disabled"}>恢复默认（最新）</button></div><div class="msg"></div></div>
+  </div>`;
+  const msg = sc.querySelector(".msg");
+  sc.querySelector(".save").onclick = () => post("/api/tower/season", { season: +sc.querySelector(".ed").value }, msg, loadTower);
+  sc.querySelector(".reset").onclick = () => post("/api/tower/season/reset", {}, msg, loadTower);
+  box.appendChild(sc);
+  if (!d.hasData) { box.insertAdjacentHTML("beforeend", '<p class="hint">服务端没有加载任务数据，看不到每层的怪。</p>'); return; }
+  const monsterOpts = '<option value="">不换（原来的怪）</option>' + d.monsters.map(m => `<option value="${esc(m.blueprint)}">${esc(m.name)}</option>`).join("");
+  let area = "";
+  for (const f of d.floors) {
+    const head = `${f.difficulty} · 第 ${f.area} 区`;
+    if (head !== area) { area = head; const h = document.createElement("h2"); h.textContent = head; box.appendChild(h); }
+    const swaps = f.waves.flat().filter(g => g.swap).length;
+    const det = document.createElement("details");
+    det.className = "card";
+    det.dataset.id = f.id;
+    det.open = openIds.has(String(f.id));
+    det.innerHTML = `<summary>第 ${f.floor} 层（${f.id}）· ${f.waves.length} 波${swaps ? ` · <span class="mod">换了 ${swaps} 种</span>` : ""}</summary>`;
+    const t = document.createElement("table");
+    t.innerHTML = "<tr><th>波</th><th>怪</th><th>换成</th><th></th></tr>";
+    f.waves.forEach((wave, wi) => wave.forEach(g => {
+      const tr = document.createElement("tr");
+      tr.innerHTML = `<td>第 ${wi + 1} 波</td><td>${esc(g.name)} ×${g.count}${g.swap ? '<span class="mod">→ ' + esc(g.swapName) + "</span>" : ""}</td>
+        <td><select class="to">${monsterOpts}</select></td><td><button class="primary save">保存</button><div class="msg"></div></td>`;
+      const sel = tr.querySelector(".to");
+      sel.value = g.swap || "";
+      tr.querySelector(".save").onclick = () => post("/api/tower/swap", { floor: f.id, wave: wi, blueprint: g.blueprint, to: sel.value }, tr.querySelector(".msg"), loadTower);
+      t.appendChild(tr);
+    }));
+    const wrap = document.createElement("div"); wrap.className = "tbl"; wrap.appendChild(t); det.appendChild(wrap);
+    box.appendChild(det);
+  }
+}
+
+// ----- pages -----
+
+const pages = { act: loadActs, shop: loadShop, gacha: loadGacha, tower: loadTower };
+function route() {
+  const page = pages[location.hash.slice(1)] ? location.hash.slice(1) : "act";
+  for (const p of Object.keys(pages)) $("pg-" + p).hidden = p !== page;
+  for (const a of document.querySelectorAll("nav a")) a.classList.toggle("on", a.getAttribute("href") === "#" + page);
+  pages[page]().catch(e => { $("pg-" + page).insertAdjacentText("beforeend", "连不上服务端：" + e); });
+}
+window.addEventListener("hashchange", route);
+route();
+</script>
+</body>
+</html>

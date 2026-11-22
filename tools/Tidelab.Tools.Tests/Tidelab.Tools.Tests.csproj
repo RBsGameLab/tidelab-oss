@@ -1,0 +1,32 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <!-- Tests of the two generators that read the client's .NET assemblies (ProtoGen,
+       ConfigExport). The server is Go (server/); these tools stay C# (R-144h). -->
+  <PropertyGroup>
+    <IsPackable>false</IsPackable>
+    <IsTestProject>true</IsTestProject>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.NET.Test.Sdk" />
+    <PackageReference Include="xunit" />
+    <PackageReference Include="xunit.runner.visualstudio" />
+    <PackageReference Include="Google.Protobuf" />
+    <PackageReference Include="Google.FlatBuffers" />
+    <PackageReference Include="Grpc.Tools" PrivateAssets="all" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Protobuf Include="fixture.proto" GrpcServices="None" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Using Include="Xunit" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\Tidelab.ProtoGen\Tidelab.ProtoGen.csproj" />
+    <ProjectReference Include="..\Tidelab.ConfigExport\Tidelab.ConfigExport.csproj" />
+  </ItemGroup>
+
+</Project>

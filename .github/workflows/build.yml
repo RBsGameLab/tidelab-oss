@@ -1,0 +1,41 @@
+name: build
+
+on:
+  push:
+  pull_request:
+
+jobs:
+  # Go servers require protocol definitions and data-table row bindings generated from the user's
+  # own 3.8 client assets (`generate.cmd`), which are not committed to the public repository.
+  # Public CI validates the Rust workspace and Python tool tests.
+  tools:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: Python tool tests
+        run: |
+          python3 -I tools/build_cspak_test.py
+          python3 -I tools/build_loginpak_test.py
+          python3 -I tools/make_cfg_test.py
+          python3 -I tools/tl_tools_test.py
+
+  client:
+    runs-on: windows-latest
+    defaults:
+      run:
+        working-directory: client
+    steps:
+      - uses: actions/checkout@v4
+      - name: Toolchain
+        run: rustup toolchain install stable --profile minimal --component clippy,rustfmt
+      - name: Format
+        run: cargo fmt --all --check
+      - name: Clippy
+        run: cargo clippy --all-targets --locked -- -D warnings
+      - name: Test
+        run: cargo test --locked
+      - name: Build release binaries
+        run: cargo build --release --locked

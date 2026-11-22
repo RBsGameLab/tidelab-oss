@@ -1,0 +1,5 @@
+<Solution>
+  <Project Path="Tidelab.ConfigExport/Tidelab.ConfigExport.csproj" />
+  <Project Path="Tidelab.ProtoGen/Tidelab.ProtoGen.csproj" />
+  <Project Path="Tidelab.Tools.Tests/Tidelab.Tools.Tests.csproj" />
+</Solution>

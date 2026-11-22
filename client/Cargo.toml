@@ -1,0 +1,35 @@
+# Client tools in Rust: the launcher (UI, server and game control, auto combat buttons),
+# tidelab_start.exe and tidelab_patch.dll.
+[workspace]
+resolver = "3"
+members = ["core", "launcher", "patch", "start"]
+
+[workspace.package]
+edition = "2024"
+license = "AGPL-3.0-only"
+publish = false
+
+[workspace.dependencies]
+# wgpu, not glow: glow drew a blank window on this machine (NVIDIA laptop GPU, 2026-11-20).
+# R-147c: the launcher asks wgpu for Direct3D 12's software adapter (WARP), not the GPU.
+eframe = { version = "0.37.0", default-features = false, features = ["wgpu", "default_fonts"] }
+serde = { version = "1", features = ["derive"] }
+toml = "0.9"
+windows-sys = { version = "0.61", features = [
+    "Win32_Foundation",
+    "Win32_Security",
+    "Win32_System_Diagnostics_ToolHelp",
+    # R-147c: the launcher maps its font file instead of reading it.
+    "Win32_System_Memory",
+    "Win32_System_Threading",
+    # R-145: ShellExecuteExW, for a program whose manifest asks for elevation (tidelab_start.exe).
+    "Win32_System_Registry",
+    "Win32_UI_Shell",
+    "Win32_UI_WindowsAndMessaging",
+] }
+
+[profile.release]
+opt-level = "s"
+lto = true
+codegen-units = 1
+strip = true

@@ -1,0 +1,17 @@
+# Combat requests the 3.8 client sends and waits on.
+# Test: server/internal/combat TestEveryCombatRequestTheClientWaitsOnIsAnswered.
+# request
+ChangeStateRequest
+ChangeSummonEntityStateRequest
+CombineEntitiesRequest
+DamageExecuteRequest
+DissolveCombineRelationRequest
+FragileChangeRequest
+FsmStateBehaviorRequest
+HitRequest
+OrderApplyBuffRequest
+OrderRemoveBuffByTagsRequest
+OrderRemoveBuffRequest
+SkillRequest
+SwitchRoleRequest
+UseSkillRequest

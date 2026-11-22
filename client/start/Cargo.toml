@@ -1,0 +1,28 @@
+[package]
+name = "tidelab-start"
+version = "0.1.0"
+edition.workspace = true
+license.workspace = true
+publish.workspace = true
+
+# Starts the 3.8 client suspended and loads tidelab_patch.dll into it (specs/client-patch.md §1).
+# Lives beside Client-Win64-Shipping.exe.
+[lib]
+name = "tidelab_start"
+path = "src/lib.rs"
+
+[[bin]]
+name = "tidelab_start"
+path = "src/main.rs"
+# The bin carries the highestAvailable manifest, so its (empty) test exe would need elevation.
+test = false
+
+[dependencies]
+windows-sys = { workspace = true, features = [
+    "Win32_Security",
+    "Win32_System_Diagnostics_Debug",
+    "Win32_System_LibraryLoader",
+    "Win32_System_Memory",
+    "Win32_UI_Shell",
+    "Win32_UI_WindowsAndMessaging",
+] }

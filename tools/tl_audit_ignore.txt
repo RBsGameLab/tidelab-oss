@@ -1,0 +1,2 @@
+# R-166: groups of the audit report to hide (tools/tl_audit.py), one Python regex per line,
+# matched against a group's text (numbers shown as #) or a request/monster name. The user picks them.

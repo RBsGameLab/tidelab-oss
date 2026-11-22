@@ -1,0 +1,27 @@
+[package]
+name = "tidelab-patch"
+version = "0.1.0"
+edition.workspace = true
+license.workspace = true
+publish.workspace = true
+
+# The patch DLL loaded into the 3.8 client process (specs/client-patch.md).
+[lib]
+name = "tidelab_patch"
+crate-type = ["cdylib", "rlib"]
+
+[dependencies]
+windows-sys = { workspace = true, features = [
+    "Win32_Security",
+    "Win32_Storage_FileSystem",
+    "Win32_System_Diagnostics_Debug",
+    "Win32_System_Environment",
+    "Win32_System_IO",
+    "Win32_System_Kernel",
+    "Win32_System_LibraryLoader",
+    "Win32_System_Memory",
+    "Win32_System_Performance",
+    "Win32_System_ProcessStatus",
+    "Win32_System_SystemInformation",
+    "Win32_System_SystemServices",
+] }

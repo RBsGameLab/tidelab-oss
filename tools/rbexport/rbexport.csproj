@@ -1,0 +1,15 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <!-- R-174d: tidelab_export.dll, loaded into the client by the patch DLL with -RbExport=<folder>
+       (client/patch/src/export.rs). References nothing of the game: the engine's file functions
+       are found by reflection, so it builds before anything is taken out of the client. -->
+  <PropertyGroup>
+    <!-- The game's scripts run on .NET 9 (Mono). -->
+    <TargetFramework>net9.0</TargetFramework>
+    <AssemblyName>tidelab_export</AssemblyName>
+    <RootNamespace>RB</RootNamespace>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>disable</ImplicitUsings>
+    <Optimize>true</Optimize>
+    <GenerateDocumentationFile>false</GenerateDocumentationFile>
+  </PropertyGroup>
+</Project>

@@ -1,0 +1,18 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <!-- Exports the game's config tables (Client/Content/Aki/ConfigDB/*.db: SQLite, each row's
+       BinData a FlatBuffers table) to JSON, one file per table. The schema comes from the
+       client's flatc-generated Aki.Generated.dll, read as metadata and IL, never loaded or run. -->
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <Compile Include="../Tidelab.ProtoGen/Metadata.cs" Link="Metadata.cs" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.Data.Sqlite" />
+  </ItemGroup>
+
+</Project>
