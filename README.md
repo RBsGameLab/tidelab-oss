@@ -11,16 +11,24 @@ generators for a 3.8 game client.
 
 ## Screenshots
 
-The 3.8 client on a tidelab server: the open world and story, the first fights, and the Tower of
-Adversity. They only show the game running; nothing in the code uses them.
+The 3.8 client on a tidelab server: the start screen (top right: the client build the patch fits,
+3.8.0 9244589), the open world, story scenes, open-world fights and the Tower of Adversity. They
+only show the game running; nothing in the code uses them.
 
-![Open world and story](docs/screenshots/world.png)
-![Opening and first fights](docs/screenshots/combat.png)
-![Tower of Adversity](docs/screenshots/tower.png)
-
-The client build the patch fits (shown on the start screen):
-
-![Client version 3.8.0 9244589](docs/screenshots/version.png)
+<p>
+<img src="docs/screenshots/start.jpg" width="49%" alt="Start screen with the client build">
+<img src="docs/screenshots/city.jpg" width="49%" alt="Open world: a city">
+<img src="docs/screenshots/waterfront.jpg" width="49%" alt="Story scene on the waterfront">
+<img src="docs/screenshots/story1.jpg" width="49%" alt="Story scene">
+<img src="docs/screenshots/map.jpg" width="49%" alt="World map">
+<img src="docs/screenshots/glide.jpg" width="49%" alt="Travelling across the open world">
+<img src="docs/screenshots/field_fight.jpg" width="49%" alt="Open-world fight">
+<img src="docs/screenshots/story2.jpg" width="49%" alt="Story scene">
+<img src="docs/screenshots/tower_gate.jpg" width="49%" alt="Tower of Adversity entrance">
+<img src="docs/screenshots/tower_menu.jpg" width="49%" alt="Tower of Adversity">
+<img src="docs/screenshots/tower_fight1.jpg" width="49%" alt="Tower fight">
+<img src="docs/screenshots/tower_fight2.jpg" width="49%" alt="Tower fight">
+</p>
 
 ## Layout
 
